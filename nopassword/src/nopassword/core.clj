@@ -6,7 +6,6 @@
 	(:require [compojure.route :as cr])
 	(:require [clojure.string :as str])
 	(:require [ring-debug-logging.core :as d])
-	(:require [hiccup.core :as h])
 	(:require [hiccup.page :as hp])
 	(:require [hiccup.form :as hf])
 	(:require [clj-http.client :as cl])
@@ -36,26 +35,24 @@
 )
 
 (defn text-input [text-name label-text value]
-	(h/html [:div (hf/label text-name label-text) (hf/text-field text-name value)])
+	[:div (hf/label text-name label-text) (hf/text-field text-name value)]
 )
 
-(defn prompt-form [name address error]
-	(h/html 
-		[
-			:div
-			(h/html [:div error]) 
-			(text-input :name "Name " name) 
-			(text-input :address "Address " address)
-		]
-	)
+(defn prompt-form [name address errors]
+	[
+		:div
+		[:div (map (fn [line] [:div line]) errors)] 
+		(text-input :name "Name " name) 
+		(text-input :address "Address " address)
+	]
 )
 
-(defn prompt-body [name address error]
-	(h/html [:body (h/html [:div (prompt-form name address error)])])
+(defn prompt-body [name address errors]
+	[:body [:div (prompt-form name address errors)]]
 )
 
-(defn prompt [name address error]
-	(hp/html5 (head) (prompt-body name address error))
+(defn prompt [name address errors]
+	(hp/html5 (head) (prompt-body name address errors))
 )
 
 (defn validate [name address]
@@ -80,7 +77,7 @@
 )
 
 (c/defroutes replying
-	(c/GET "/servers/nopassword/register/" [] (prompt "" "" ""))
+	(c/GET "/servers/nopassword/register/" [] (prompt "" "" []))
 	(c/POST "/servers/nopassword/validate" [name address] (validate name address))
 	(c/POST "servers/nopassword/confirm" [token] (confirm token))
 	(c/POST "servers/nopassword/request" [] (request))

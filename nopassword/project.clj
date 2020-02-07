@@ -5,6 +5,7 @@
 	[
 		[org.clojure/clojure "1.8.0"]
 		[ring/ring-jetty-adapter "1.8.0"]
+		[org.postgresql/postgresql "42.1.4"]
 		[compojure "1.6.1"]
 		[hiccup "2.0.0-alpha2"]
 		[clj-http "3.10.0"]
