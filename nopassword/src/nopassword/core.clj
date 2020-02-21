@@ -3,6 +3,7 @@
 	(:require [clojure.java.jdbc :as jdbc])
 	(:require [ring.adapter.jetty :as ring])
 	(:require [ring.middleware.params :as params])
+	(:require [ring.middleware.session :as session])
 	(:require [compojure.core :as compojure])
 	(:require [compojure.route :as route])
 	(:require [clojure.string :as str])
@@ -23,7 +24,6 @@
 ;  general mail functions
 
 (defn mail-config [from to subject body]
-	(println body)
 	{
 		:oauth-token stuff/mail-key
 		:content-type :applicaton/json
@@ -111,7 +111,7 @@
 )
 
 (defn make-token []
-	(reduce (fn [a x] (+ (bit-shift-left a 8) x)) (long 0) (random/bytes 16))
+	(Long/parseUnsignedLong (random/hex 8) 16)
 )
 
 (defn html-body [token name]
@@ -120,7 +120,6 @@
 			[:h1 "No Password"]
 			[:div (str "No password signon for " name)]
 			(let [format-string "%s/servers/nopassword/login.exe?token=%016x"]
-				(println stuff/site token)
 				[:div [:a {:href (format format-string stuff/site token)} "Signon"]]
 			)
 		]
@@ -164,18 +163,75 @@
 	)
 )
 
+(defn page-body [db user-id]
+	(let 
+		[
+			query "SELECT name, address, count, contact FROM users WHERE id=?"
+			record (first(jdbc/query db [query user-id]))
+			{name :name address :address count :count contact :contact} record
+		]
+		[:div
+			[:div name]
+			[:div address] 
+			[:div (format "Logged on %d times" count)]
+			[:div (if contact "Allow contact" "Disallow contact")]
+		]
+	)
+)
+
+(defn page [db user-id]
+	(page/html5 (plain-head) (page-body db user-id))
+)
+
 (defn request [name]
 )
 
 (defn check []
 )
 
-(defn app-body [token-string]
-	[:body [:div (format "Token %016x" (Long/parseLong token-string 16))]]
+
+(defn fetch-token-user [db token]
+	(let
+		[
+			query "SELECT user_id FROM tokens WHERE token=?;"
+			result (jdbc/query db [query token])
+		]
+		(if (= 1 (count result))
+			(let [user-id (get (first result) :user_id)]
+				(jdbc/delete! db :tokens ["token=?" token])
+				user-id
+			)
+			nil
+		)
+	)
 )
 
-(defn login [token]
-	(page/html5 (plain-head) (app-body token))
+(defn update-count [db user-id]
+	(let
+		[
+			query "SELECT count FROM users WHERE id=?"
+			record (first(jdbc/query db [query user-id]))
+			count (get record :count)
+		]
+		(jdbc/update! db :users {:count (+ count 1)} ["id=?" user-id])
+	)
+
+)
+
+(defn login [token-string]
+	(jdbc/with-db-transaction [db stuff/db-spec]
+		(let 
+			[
+				token (Long/parseUnsignedLong token-string 16)
+				user-id (fetch-token-user db token)
+			]
+			(update-count db user-id)
+			(if user-id
+				{:body (page db user-id) :sesssion user-id}
+				{:status 400 :body "token search failure"}
+			)
+		) 
+	)
 )
 
 (defn opt []
@@ -199,6 +255,7 @@
 (defn wrapper []
 	(-> replying
 		(params/wrap-params)
+		(session/wrap-session)
 		(debug/wrap-with-logger)
 	)
 )
