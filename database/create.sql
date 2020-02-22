@@ -4,8 +4,8 @@
 
 -- Start from scratch
 
-DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS tokens;
+DROP TABLE IF EXISTS users;
 
 --  Create the tables
 
@@ -23,6 +23,7 @@ CREATE UNIQUE INDEX ON users(name) WHERE valid;
 
 CREATE TABLE tokens
 (
-	token BIGINT PRIMARY KEY,
+	server_token BIGINT PRIMARY KEY,
+	client_token BIGINT DEFAULT 0,
 	user_id INT REFERENCES users(id)
 );
