@@ -18,7 +18,7 @@
 
 (defn request-prompt-body [name error-list]
 	[:div
-		(form/form-to [:post "/servers/nopassword/request.exe"]
+		(form/form-to [:post "/servers/nopassword/request"]
 			[:div
 				(html/show-errors error-list)
 				(html/text-input :name "Name " name) 
@@ -38,7 +38,7 @@
 		[:div
 			[:h1 "No Password"]
 			[:div (str "No password signon for " name)]
-			(let [format-string "%s/servers/nopassword/login.exe?token=%016x"]
+			(let [format-string "%s/servers/nopassword/login?server-token=%016x"]
 				[:div [:a {:href (format format-string stuff/site server-token)} "Signon"]]
 			)
 		]
@@ -74,7 +74,7 @@
 )
 
 (defn get-user [db name]
-	(jdbc/query db ["SELECT id, name, address FROM users WHERE name=?" name])
+	(jdbc/query db ["SELECT id, name, address FROM users WHERE valid AND name=?" name])
 )
 
 (defn request [name]
@@ -125,9 +125,11 @@
 				server-token (Long/parseUnsignedLong server-token-string 16)
 				user-id (fetch-token-user db server-token)
 			]
-			(update-count db user-id)
 			(if user-id
-				{:body (app/app-page db user-id) :sesssion user-id}
+				(do 
+					(update-count db user-id)
+					{:body (app/app-page db user-id) :session {:user user-id}}
+				)
 				{:status 400 :body "token search failure, should not happen"}
 			)
 		) 

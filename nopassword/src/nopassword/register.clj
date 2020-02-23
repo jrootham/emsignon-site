@@ -15,7 +15,7 @@
 
 (defn register-prompt-form [name address error-list]
 	[:div
-		(form/form-to [:post "/servers/nopassword/register.exe"]
+		(form/form-to [:post "/servers/nopassword/register"]
 			[:div
 				(html/show-errors error-list)
 				(html/text-input :name "Name " name) 
