@@ -2,7 +2,7 @@
 	(:gen-class)
 	(:require [clojure.java.jdbc :as jdbc])
 	(:require [clojure.string :as str])
-	(:require [hiccup.page :as page])
+	(:require [hiccup.core :as hiccup])
 	(:require [hiccup.form :as form])
 	(:require [valip.core :as valip])
 	(:require [valip.predicates :as pred])
@@ -18,20 +18,22 @@
 		(form/form-to [:post "/servers/nopassword/register"]
 			[:div
 				(html/show-errors error-list)
-				(html/text-input :name "Name " name) 
-				(html/text-input :address "Address " address)
+				[:table
+					(html/text-input-row :name "Name " name) 
+					(html/text-input-row :address "Address " address)
+				]
 				(form/submit-button "Register")
 			]
 		)
 	]
 )
 
-(defn register-prompt-body [name address error-list]
+(defn register-prompt-contents [name address error-list]
 	[:body [:div (register-prompt-form name address error-list)]]
 )
 
 (defn register-prompt [name address error-list]
-	(page/html5 (html/plain-head) (register-prompt-body name address error-list))
+	(hiccup/html (html/plain-head) (register-prompt-contents name address error-list))
 )
 
 ;  registration actions, mail, page
@@ -71,7 +73,7 @@
 )
 
 (defn registered-page [name address]
-	(page/html5 (html/plain-head) (register-body name address))
+	(hiccup/html (html/plain-head) (register-body name address))
 )
 
 (defn register [name address]

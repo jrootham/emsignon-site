@@ -23,6 +23,7 @@
 	(compojure/POST "/servers/nopassword/logout" [:as {{user :user} :session}] (app/logout user))
 	(compojure/POST "/servers/nopassword/delete" [:as {{user :user} :session}] (app/delete user))
 	(compojure/GET "/favicon.ico" [] {:status 404})
+	(route/resources "/servers/nopassword/")
 	(route/not-found {:status 404 :body "Not Found"})
 )
 

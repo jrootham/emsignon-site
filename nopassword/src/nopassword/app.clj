@@ -1,31 +1,18 @@
 (ns nopassword.app
 	(:gen-class)
 	(:require [clojure.java.jdbc :as jdbc])
-	; (:require [clojure.string :as str])
-	(:require [hiccup.page :as page])
+	(:require [hiccup.core :as hiccup])
 	(:require [hiccup.form :as form])
-	; (:require [clj-http.client :as client])
-	; (:require [valip.core :as valip])
-	; (:require [valip.predicates :as pred])
-	; (:require [crypto.random :as random])
 	(:require [nopassword.stuff :as stuff])
-	; (:require [nopassword.mail :as mail])
 	(:require [nopassword.html :as html])
-	; (:require [nopassword.register :as register])
-	; (:require [nopassword.signon :as signon])
-	; (:require [nopassword.app :as app])
 )
 
 (defn mark-invalid [db user-id]
 	(jdbc/update! db :users {:valid false} ["id=?" user-id])
 )
 
-(defn allow [db user-id]
-	(jdbc/update! db :users {:contact true} ["id=?" user-id])
-)
-
-(defn disallow [db user-id]
-	(jdbc/update! db :users {:contact false} ["id=?" user-id])
+(defn set-allow [db user-id allow]
+	(jdbc/update! db :users {:contact allow} ["id=?" user-id])
 )
 
 (defn app-page-body [db user-id]
@@ -51,19 +38,19 @@
 )
 
 (defn app-page [db user-id]
-	(page/html5 (html/plain-head) (app-page-body db user-id))
+	(hiccup/html (html/plain-head) (app-page-body db user-id))
 )
 
 (defn opt-in [user-id]
 	(jdbc/with-db-transaction [db stuff/db-spec]
-		(allow db user-id)
+		(set-allow db user-id true)
 		(app-page db user-id)
 	)
 )
 
 (defn opt-out [user-id]
 	(jdbc/with-db-transaction [db stuff/db-spec]
-		(disallow db user-id)
+		(set-allow db user-id false)
 		(app-page db user-id)
 	)
 )

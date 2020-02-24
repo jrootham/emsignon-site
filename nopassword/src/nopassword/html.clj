@@ -5,16 +5,23 @@
 
 ;  General html functions
 
+(defn text-input-row [text-name label-text value]
+	[:tr [:td (form/label text-name label-text)] [:td (form/text-field text-name value)]]
+)
+
 (defn text-input [text-name label-text value]
 	[:div (form/label text-name label-text) (form/text-field text-name value)]
 )
 
 (defn plain-head []
-	[:head [:title "No Password"]]
+	[:head 
+		[:title "No Password"]
+		[:link {:rel "stylesheet" :type "text/css" :href "nopassword.css"}]
+	]
 )
 
 (defn active-head [token]
-	[:head [:title "No Password"]]
+	(plain-head)
 )
 
 (defn show-errors [error-list]

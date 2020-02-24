@@ -2,6 +2,7 @@
 	(:gen-class)
 	(:require [clojure.java.jdbc :as jdbc])
 	(:require [clojure.string :as str])
+	(:require [hiccup.core :as hiccup])
 	(:require [hiccup.page :as page])
 	(:require [hiccup.form :as form])
 	(:require [crypto.random :as random])
@@ -16,24 +17,22 @@
 	(Long/parseUnsignedLong (random/hex 8) 16)
 )
 
-(defn request-prompt-body [name error-list]
+(defn request-prompt-contents [name error-list]
 	[:div
 		(form/form-to [:post "/servers/nopassword/request"]
-			[:div
-				(html/show-errors error-list)
-				(html/text-input :name "Name " name) 
-				(form/submit-button "Request signon")
-			]
+			(html/show-errors error-list)
+			(html/text-input :name "Name " name) 
+			(form/submit-button "Request signon")
 		)
 	]
 )
 
 (defn request-prompt [name error-list]
-	(page/html5 (html/plain-head) (request-prompt-body name error-list))
+	(hiccup/html (html/plain-head) (request-prompt-contents name error-list))
 )
 
 
-(defn html-body [server-token name]
+(defn html-contents [server-token name]
 	[:body
 		[:div
 			[:h1 "No Password"]
@@ -50,7 +49,7 @@
 )
 
 (defn mail-body [server-token name]
-	(page/html5 (html/active-head server-token) (html-body server-token name))
+	(page/html5 (html/active-head server-token) (html-contents server-token name))
 )
 
 (defn login-email [db user-id name address]
