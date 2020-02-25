@@ -19,16 +19,18 @@
 
 (defn request-prompt-contents [name error-list]
 	[:div
+		[:div "Please enter your user name for the site No Password."]
+		[:div "An email will be sent to the email address we have on file with a link to signon to the site with."]
 		(form/form-to [:post "/servers/nopassword/request"]
 			(html/show-errors error-list)
-			(html/text-input :name "Name " name) 
+			(html/text-input :name "User name " name) 
 			(form/submit-button "Request signon")
 		)
 	]
 )
 
 (defn request-prompt [name error-list]
-	(hiccup/html (html/plain-head) (request-prompt-contents name error-list))
+	(html/page (request-prompt-contents name error-list))
 )
 
 
@@ -129,7 +131,7 @@
 					(update-count db user-id)
 					{:body (app/app-page db user-id) :session {:user user-id}}
 				)
-				{:status 400 :body "token search failure, should not happen"}
+				(html/page "Attempted to reuse link. They are only good for one try.")
 			)
 		) 
 	)

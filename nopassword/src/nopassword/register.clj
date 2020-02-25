@@ -2,7 +2,7 @@
 	(:gen-class)
 	(:require [clojure.java.jdbc :as jdbc])
 	(:require [clojure.string :as str])
-	(:require [hiccup.core :as hiccup])
+;	(:require [hiccup.core :as hiccup])
 	(:require [hiccup.form :as form])
 	(:require [valip.core :as valip])
 	(:require [valip.predicates :as pred])
@@ -19,8 +19,8 @@
 			[:div
 				(html/show-errors error-list)
 				[:table
-					(html/text-input-row :name "Name " name) 
-					(html/text-input-row :address "Address " address)
+					(html/text-input-row :name "User name" name) 
+					(html/text-input-row :address "Email address" address)
 				]
 				(form/submit-button "Register")
 			]
@@ -33,7 +33,7 @@
 )
 
 (defn register-prompt [name address error-list]
-	(hiccup/html (html/plain-head) (register-prompt-contents name address error-list))
+	(html/page (register-prompt-contents name address error-list))
 )
 
 ;  registration actions, mail, page
@@ -68,12 +68,12 @@
 	)
 )
 
-(defn register-body [name address]
-	[:div (str name " has been registered at " address)]
+(defn register-contents [name address]
+	(html/page [:div (str name " has been registered at " address)])
 )
 
-(defn registered-page [name address]
-	(hiccup/html (html/plain-head) (register-body name address))
+(defn register-page [name address]
+	(html/page (register-contents name address))
 )
 
 (defn register [name address]
@@ -82,7 +82,7 @@
 			(if (= 0 (count error-list))
 				(let [user-id (insert-user db name address)]
 					(login/login-email db user-id name address)
-					(registered-page name address)
+					(register-page name address)
 				)
 				(register-prompt name address error-list) 
 			)

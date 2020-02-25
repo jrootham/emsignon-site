@@ -24,6 +24,5 @@ CREATE UNIQUE INDEX ON users(name) WHERE valid;
 CREATE TABLE tokens
 (
 	server_token BIGINT PRIMARY KEY,
-	client_token BIGINT DEFAULT 0,
 	user_id INT REFERENCES users(id)
 );

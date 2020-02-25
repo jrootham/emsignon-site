@@ -6,4 +6,5 @@ ln -sf /home/jrootham/dev/business/npswd-site/nopassword/src/nopassword/devstuff
 lein uberjar
 
 ln -sf /home/jrootham/dev/business/npswd-site/nopassword/target/uberjar/nopassword-0.1.0-standalone.jar \
-	/home/jrootham/dev/website/servers/nopassword.jar
+	/home/jrootham/dev/website/servers/nopassword/nopassword.jar
+
