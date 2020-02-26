@@ -18,10 +18,15 @@
 		(form/form-to [:post "/servers/nopassword/register"]
 			[:div
 				(html/show-errors error-list)
-				[:table
-					(html/text-input-row :name "User name" name) 
-					(html/text-input-row :address "Email address" address)
-				]
+				(let 
+					[
+						group [:div {:id "register-group"}]
+						group (html/text-input group :name "User name" name) 
+						group (html/text-input group :address "Email address" address)
+					]
+					group
+				)
+
 				(form/submit-button "Register")
 			]
 		)
@@ -69,7 +74,7 @@
 )
 
 (defn register-contents [name address]
-	(html/page [:div (str name " has been registered at " address)])
+	[:div (str name " has been registered at " address)]
 )
 
 (defn register-page [name address]

@@ -23,7 +23,7 @@
 		[:div "An email will be sent to the email address we have on file with a link to signon to the site with."]
 		(form/form-to [:post "/servers/nopassword/request"]
 			(html/show-errors error-list)
-			(html/text-input :name "User name " name) 
+			(html/text-input [:div {:id "login-group"}] :name "User name " name)
 			(form/submit-button "Request signon")
 		)
 	]
@@ -34,24 +34,25 @@
 )
 
 
-(defn html-contents [server-token name]
+(defn mail-contents [server-token name]
 	[:body
 		[:div
 			[:h1 "No Password"]
-			[:div (str "No password signon for " name)]
+			[:div (str "No password login for " name)]
 			(let [format-string "%s/servers/nopassword/login?server-token=%016x"]
-				[:div [:a {:href (format format-string stuff/site server-token)} "Signon"]]
+				[:div [:a {:href (format format-string stuff/site server-token)} "Login"]]
 			)
 		]
 	]
 )
 
 (defn mail-subject [server-token]
-	(format "[#! nopassword %016x] No Password Signon" server-token)
+;	(format "[#! nopassword %016x] No Password Signon" server-token)
+	(format "No Password Login" server-token)
 )
 
 (defn mail-body [server-token name]
-	(page/html5 (html/active-head server-token) (html-contents server-token name))
+	(page/html5 (html/active-head server-token) (mail-contents server-token name))
 )
 
 (defn login-email [db user-id name address]
@@ -67,11 +68,11 @@
 )
 
 (defn request-body [name address]
-	[:body [:div (str "User " name " at " address " has requested a sign on")]]
+	[:div (str "User " name " at " address " has requested a sign on")]
 )
 
 (defn request-page [name address]
-	(page/html5 (html/plain-head) (request-body name address))
+	(html/page (request-body name address))
 )
 
 (defn get-user [db name]
@@ -129,7 +130,11 @@
 			(if user-id
 				(do 
 					(update-count db user-id)
-					{:body (app/app-page db user-id) :session {:user user-id}}
+					{
+						:status 301 
+						:headers {"Location" "/servers/nopassword/app"} 
+						:session {:user user-id}
+					}
 				)
 				(html/page "Attempted to reuse link. They are only good for one try.")
 			)

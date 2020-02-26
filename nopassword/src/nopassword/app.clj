@@ -15,6 +15,10 @@
 	(jdbc/update! db :users {:contact allow} ["id=?" user-id])
 )
 
+(defn get-name [db user-id]
+	(get (first (jdbc/query db ["SELECT name FROM users WHERE id=?" user-id])) :name)
+)
+
 (defn app-page-contents [db user-id]
 	(let 
 		[
@@ -38,7 +42,7 @@
 				(form/form-to [:post "/servers/nopassword/opt-in"] (form/submit-button "Allow Contact"))
 			)
 
-			(form/form-to [:post "/servers/nopassword/delete"] (form/submit-button "Delete"))
+			(form/form-to [:delete "/servers/nopassword/delete"] (form/submit-button "Delete"))
 			(form/form-to [:post "/servers/nopassword/logout"] (form/submit-button "Logout"))
 		]
 	)
@@ -67,13 +71,16 @@
 )
 
 (defn logout [user-id]
-	(kill-session "logged out")
+	(kill-session (html/page (str (get-name stuff/db-spec user-id) " is logged out")))
 )
 
 (defn delete [user-id]
 	(jdbc/with-db-transaction [db stuff/db-spec]
 		(mark-invalid db user-id)
-		(kill-session "Deleted")
+		(kill-session (html/page (str (get-name db user-id) "is deleted")))
 	)
 )
 
+(defn app [user-id]
+	(app-page stuff/db-spec user-id)
+)
