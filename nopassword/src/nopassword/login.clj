@@ -24,7 +24,7 @@
 		(form/form-to [:post "/servers/nopassword/request"]
 			(html/show-errors error-list)
 			(html/text-input [:div {:id "login-group"}] :name "User name " name)
-			(form/submit-button "Request signon")
+			(form/submit-button "Request login")
 		)
 	]
 )
