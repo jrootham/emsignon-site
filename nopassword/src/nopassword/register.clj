@@ -74,7 +74,11 @@
 )
 
 (defn register-contents [name address]
-	[:div (str name " has been registered at " address)]
+	[:div
+		[:div (str name " has been registered at " address)]
+		[:div "An email will be sent to the email address you entered with a link to log in to the site with."]	
+	]
+
 )
 
 (defn register-page [name address]

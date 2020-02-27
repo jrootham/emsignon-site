@@ -68,7 +68,10 @@
 )
 
 (defn request-body [name address]
-	[:div (str "User " name " at " address " has requested a sign on")]
+	[:div 
+		[:div (str "User " name " at " address " has requested a log in")]
+		[:div "An email will be sent to the email address we have on file with a link to log in to the site with."]	
+	]
 )
 
 (defn request-page [name address]
