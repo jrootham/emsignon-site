@@ -7,16 +7,19 @@
 	(:require [nopassword.html :as html])
 )
 
-(defn redirect []
+(def redirect
 	{
-		:status 301 
+		:status 303
 		:headers {"Location" "/servers/nopassword/app"} 
 	}
-
 )
 
+ (def no-cache
+ 	{"Cache-Control" "no-store"}
+ )
+
 (defn no-user []
-	{:headers {"Cache-Control" "no-cache"} :body (html/page "No user logged in")}		
+	(html/page "No user logged in")
 )
 
 (defn mark-invalid [db user-id]
@@ -68,7 +71,7 @@
 	(if user-id
 		(jdbc/with-db-transaction [db stuff/db-spec]
 			(set-allow db user-id true)
-			(redirect)
+			redirect
 		)
 		(no-user)
 	)
@@ -78,14 +81,15 @@
 	(if user-id
 		(jdbc/with-db-transaction [db stuff/db-spec]
 			(set-allow db user-id false)
-			(redirect)
+			redirect
 		)
 		(no-user)
 	)
 )
 
 (defn kill-session [body]
-	{:headers {"Cache-Control" "no-cache"} :body body :session nil}
+;	{:headers no-cache :body body :session nil}
+	{:body body :session nil}
 )
 
 (defn logout [user-id]
@@ -99,7 +103,7 @@
 	(if user-id
 		(jdbc/with-db-transaction [db stuff/db-spec]
 			(mark-invalid db user-id)
-			(kill-session (html/page (str (get-name db user-id) "is deleted")))
+			(kill-session (html/page (str (get-name db user-id) " is deleted")))
 		)
 		(no-user)		
 	)
@@ -107,7 +111,7 @@
 
 (defn app [user-id]
 	(if user-id
-		{:headers {"Cache-Control" "no-cache"} :body (app-page stuff/db-spec user-id)}
+		{:headers no-cache :body (app-page stuff/db-spec user-id)}
 		(no-user)		
 	)
 )

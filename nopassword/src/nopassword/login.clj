@@ -133,15 +133,7 @@
 			(if user-id
 				(do 
 					(update-count db user-id)
-					{
-						:status 301 
-						:headers 
-							{
-								"Location" "/servers/nopassword/app"
-								"Cache-Control" "no-cache"
-							} 
-						:session {:user user-id}
-					}
+					(assoc app/redirect :session {:user user-id})
 				)
 				(html/page "Attempted to reuse link. They are only good for one try.")
 			)

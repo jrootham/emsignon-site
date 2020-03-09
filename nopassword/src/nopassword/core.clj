@@ -20,7 +20,6 @@
 	(compojure/POST "/servers/nopassword/request" [name] (login/request name))
 	(compojure/GET "/servers/nopassword/login" [server-token] (login/login server-token))
 	(compojure/GET "/servers/nopassword/app" [:as {{user :user} :session}] (app/app user))
-	(compojure/POST "/servers/nopassword/app" [:as {{user :user} :session}] (app/app user))
 	(compojure/POST "/servers/nopassword/opt-in" [:as {{user :user} :session}] (app/opt-in user))
 	(compojure/POST "/servers/nopassword/opt-out" [:as {{user :user} :session}] (app/opt-out user))
 	(compojure/POST "/servers/nopassword/logout" [:as {{user :user} :session}] (app/logout user))
