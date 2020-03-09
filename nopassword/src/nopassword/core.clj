@@ -34,7 +34,7 @@
 	(-> replying
 		(params/wrap-params)
 		(session/wrap-session)
-		(debug/wrap-with-logger)
+;		(debug/wrap-with-logger)
 	)
 )
 
@@ -50,7 +50,7 @@
 				(println (str args[0] " is not an int"))
 			)
 		)
-	  	(println "Usage: hello port")
+	  	(println "Usage: nopassword port")
 	)  	
 )
 

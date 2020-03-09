@@ -135,7 +135,11 @@
 					(update-count db user-id)
 					{
 						:status 301 
-						:headers {"Location" "/servers/nopassword/app"} 
+						:headers 
+							{
+								"Location" "/servers/nopassword/app"
+								"Cache-Control" "no-cache"
+							} 
 						:session {:user user-id}
 					}
 				)
