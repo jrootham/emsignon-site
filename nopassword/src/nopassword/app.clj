@@ -14,9 +14,14 @@
 	}
 )
 
- (def no-cache
- 	{"Cache-Control" "no-store"}
- )
+(defn kill-session [body]
+	{:body body :session nil}
+)
+
+
+(def no-cache
+	{"Cache-Control" "no-store"}
+)
 
 (defn no-user []
 	(html/page "No user logged in")
@@ -85,11 +90,6 @@
 		)
 		(no-user)
 	)
-)
-
-(defn kill-session [body]
-;	{:headers no-cache :body body :session nil}
-	{:body body :session nil}
 )
 
 (defn logout [user-id]
