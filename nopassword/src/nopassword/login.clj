@@ -23,7 +23,7 @@
 		[:div "An email will be sent to the email address we have on file with a link to signon to the site with."]
 		(form/form-to [:post "/servers/nopassword/request"]
 			(html/show-errors error-list)
-			(html/text-input [:div {:id "login-group"}] :name "User name " name)
+			(html/group [:div {:id "login-group"}] [(html/label-text-field :name "User name " name)])
 			(form/submit-button "Request login")
 		)
 	]
@@ -33,38 +33,27 @@
 	(html/page (request-prompt-contents name error-list))
 )
 
+(defn href [server-token]
+	(format "%s/servers/nopassword/login?server-token=%016x" stuff/site server-token)
+)
 
 (defn mail-contents [server-token name]
 	[:body
 		[:div
 			[:h1 "No Password"]
 			[:div (str "No password login for " name)]
-			(let [format-string "%s/servers/nopassword/login?server-token=%016x"]
-				[:div [:a {:href (format format-string stuff/site server-token)} "Login"]]
-			)
+			[:div [:a {:href (href server-token)} "Login"]]
 		]
 	]
 )
 
-(defn mail-subject [server-token]
-;	(format "[#! nopassword %016x] No Password Signon" server-token)
-	(format "No Password Login" server-token)
+(defn body [head server-token name]
+	(page/html5 head (mail-contents server-token name))
 )
 
-(defn mail-body [server-token name]
-	(page/html5 (html/active-head server-token) (mail-contents server-token name))
-)
-
-(defn login-email [db user-id name address]
-	(let 
-		[
-			server-token (make-token)
-			subject (mail-subject server-token)
-			body (mail-body server-token name)
-		]
-		(jdbc/insert! db :tokens {:server_token server-token :user_id user-id})
-		(mail/send-mail mail/std-from address subject body)
-	)
+(defn mail [db user-id server-token subject head name address]
+	(jdbc/insert! db :tokens {:server_token server-token :user_id user-id})
+	(mail/send-mail mail/std-from address subject (body head server-token name))
 )
 
 (defn request-body [name address]
@@ -82,18 +71,67 @@
 	(jdbc/query db ["SELECT id, name, address FROM users WHERE valid AND name=?" name])
 )
 
-(defn request [name]
+(defn make-request [name server-token subject headers found not-found]
 	(jdbc/with-db-transaction [db stuff/db-spec]
 		(let [result (get-user db name)]
-			(if (= 1 (count result))
-				(let [{user-id :id name :name address :address} (first result)]
-					(login-email db user-id name address)
-					(request-page name address)
+			(if (== 1 (count result))
+				(let [{user-id :id address :address} (first result)]
+					(mail db user-id server-token subject headers name address)
+					(found name address)
 				)
-				(request-prompt name ["Name not found"])
+				(not-found name)
 			)
 		)
 	)	
+)
+
+(defn app-subject [app-token]
+	(format "[#! nopassword %s] No Password Signon" app-token)
+)
+
+(defn app-head [server-token]
+	[:head
+		[
+			(html/custom-meta "np-target" (href server-token))
+		]
+	]
+)
+	
+(defn app-found [name address]
+	{:status 200 :body ""}
+)
+					
+(defn app-not-found [name]
+	{:status 404 :body (str name " not found")}
+)
+
+(defn app-request [name app-token]
+	(let 
+		[
+			server-token (make-token)
+			subject (app-subject app-token)
+			head (app-head server-token)
+		]
+		(make-request name server-token subject head app-found app-not-found)
+	)
+)
+
+(def simple-subject "No Password Login")
+
+(defn found [name address]
+	(request-page name address)
+)
+
+(defn not-found [name]
+	(request-prompt name [(str "Name " name " not found")])
+)
+
+(defn request [name]
+	(make-request name (make-token) simple-subject (html/plain-head) found not-found)
+)
+
+(defn login-email [db user-id name address]	
+	(mail db user-id (make-token) simple-subject (html/plain-head) name address)
 )
 
 (defn fetch-token-user [db server-token]

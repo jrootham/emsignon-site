@@ -13,18 +13,17 @@
 
 ;  Registration prompt page html (only thing it does)
 
-(defn register-prompt-form [name address error-list]
+(defn register-prompt-form [name address useapp error-list]
 	[:div
 		(form/form-to [:post "/servers/nopassword/register"]
 			[:div
 				(html/show-errors error-list)
-				(let 
+				(html/group [:div {:id "register-group"}]
 					[
-						group [:div {:id "register-group"}]
-						group (html/text-input group :name "User name" name) 
-						group (html/text-input group :address "Email address" address)
+						(html/label-text-field :name "User name" name) 
+						(html/label-text-field :address "Email address" address)
+						(html/label-checkbox :useapp "Use nopassword application" useapp)
 					]
-					group
 				)
 
 				(form/submit-button "Register")
@@ -33,12 +32,12 @@
 	]
 )
 
-(defn register-prompt-contents [name address error-list]
-	[:body [:div (register-prompt-form name address error-list)]]
+(defn register-prompt-contents [name address useapp error-list]
+	[:body [:div (register-prompt-form name address useapp error-list)]]
 )
 
-(defn register-prompt [name address error-list]
-	(html/page (register-prompt-contents name address error-list))
+(defn register-prompt [name address useapp error-list]
+	(html/page (register-prompt-contents name address useapp error-list))
 )
 
 ;  registration actions, mail, page
@@ -78,22 +77,41 @@
 		[:div (str name " has been registered at " address)]
 		[:div "An email will be sent to the email address you entered with a link to log in to the site with."]	
 	]
+)
 
+(defn register-app-contents [name address]
+	[:div
+		[:div (str name " has been registered at " address)]
+		[:div [:p "Please cut and paste the following data into the No Password application"]]
+		[:div 
+			{:id "copy"} 
+			[:pre (str "nopassword\n" stuff/site "/servers/nopassword/app-request\n" name "\n")]
+		]
+	]
 )
 
 (defn register-page [name address]
 	(html/page (register-contents name address))
 )
 
-(defn register [name address]
+(defn register-app-page [name address]
+	(html/page (register-app-contents name address))
+)
+
+(defn register [useapp name address]
 	(jdbc/with-db-transaction [db stuff/db-spec]
 		(let [error-list (concat (validate-address address) (validate-name db name))]
 			(if (= 0 (count error-list))
 				(let [user-id (insert-user db name address)]
-					(login/login-email db user-id name address)
-					(register-page name address)
+					(if useapp
+						(register-app-page name address)
+						(do
+							(login/login-email db user-id name address)
+							(register-page name address)
+						)
+					)
 				)
-				(register-prompt name address error-list) 
+				(register-prompt name address useapp error-list) 
 			)
 		)
 	)

@@ -6,8 +6,20 @@
 
 ;  General html functions
 
-(defn text-input [group text-name label-text value]
-	(conj (conj group (form/label text-name label-text)) (form/text-field text-name value))
+(defn label-text-field [text-name label-text value]
+	[(form/label text-name label-text) (form/text-field text-name value)]
+)
+
+(defn label-checkbox [checkbox-name label-text checked]
+	[(form/label checkbox-name label-text) (form/check-box checkbox-name checked)]
+)
+
+(defn group [group-head contents]
+	(reduce (fn [rest next] (let [[a b] next] (conj (conj rest a) b))) group-head contents)
+)
+
+(defn show-errors [error-list]
+	[:div (map (fn [line] [:div line]) error-list)]
 )
 
 (defn plain-head []
@@ -15,14 +27,6 @@
 		[:title "No Password"]
 		[:link {:rel "stylesheet" :type "text/css" :href "nopassword.css"}]
 	]
-)
-
-(defn active-head [token]
-	(plain-head)
-)
-
-(defn show-errors [error-list]
-	[:div (map (fn [line] [:div line]) error-list)]
 )
 
 (defn page [contents]
@@ -33,4 +37,8 @@
 			[:div {:id "container"} contents]
 		]
 	)
+)
+
+(defn custom-meta [name content]
+	[:meta (str "name=\"" name "\" content=\"" content "\"")]	
 )

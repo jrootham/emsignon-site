@@ -14,10 +14,13 @@
 )
 
 (compojure/defroutes replying
-	(compojure/GET "/servers/nopassword/register-prompt" [] (register/register-prompt "" "" []))
-	(compojure/POST "/servers/nopassword/register" [name address] (register/register name address))
+	(compojure/GET "/servers/nopassword/register-prompt" [] (register/register-prompt "" "" false []))
+	(compojure/POST "/servers/nopassword/register" [useapp name address] 
+		(register/register useapp name address))
 	(compojure/GET "/servers/nopassword/request-prompt" [] (login/request-prompt "" []))
 	(compojure/POST "/servers/nopassword/request" [name] (login/request name))
+	(compojure/POST "/servers/nopassword/app-request" [name app-token] 
+		(login/app-request name app-token))
 	(compojure/GET "/servers/nopassword/login" [server-token] (login/login server-token))
 	(compojure/GET "/servers/nopassword/app" [:as {{user :user} :session}] (app/app user))
 	(compojure/POST "/servers/nopassword/opt-in" [:as {{user :user} :session}] (app/opt-in user))
@@ -33,7 +36,7 @@
 	(-> replying
 		(params/wrap-params)
 		(session/wrap-session)
-;		(debug/wrap-with-logger)
+		(debug/wrap-with-logger)
 	)
 )
 
