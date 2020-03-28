@@ -85,7 +85,7 @@
 		[:div [:p "Please cut and paste the following data into the No Password application"]]
 		[:div 
 			{:id "copy"} 
-			[:pre (str "nopassword\n" stuff/site "/servers/nopassword/app-request\n" name "\n")]
+			[:pre (str "nopassword\n" stuff/site "servers/nopassword/app-request\n" name "\n")]
 		]
 	]
 )

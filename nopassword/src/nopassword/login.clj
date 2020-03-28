@@ -33,16 +33,12 @@
 	(html/page (request-prompt-contents name error-list))
 )
 
-(defn href [server-token]
-	(format "%s/servers/nopassword/login?server-token=%016x" stuff/site server-token)
-)
-
 (defn mail-contents [server-token name]
 	[:body
 		[:div
 			[:h1 "No Password"]
 			[:div (str "No password login for " name)]
-			[:div [:a {:href (href server-token)} "Login"]]
+			[:div [:a {:href (html/href server-token)} "Login"]]
 		]
 	]
 )
@@ -89,14 +85,6 @@
 	(format "[#! nopassword %s] No Password Signon" app-token)
 )
 
-(defn app-head [server-token]
-	[:head
-		[
-			(html/custom-meta "np-target" (href server-token))
-		]
-	]
-)
-	
 (defn app-found [name address]
 	{:status 200 :body ""}
 )
@@ -110,7 +98,7 @@
 		[
 			server-token (make-token)
 			subject (app-subject app-token)
-			head (app-head server-token)
+			head (html/app-head server-token)
 		]
 		(make-request name server-token subject head app-found app-not-found)
 	)
@@ -127,11 +115,11 @@
 )
 
 (defn request [name]
-	(make-request name (make-token) simple-subject (html/plain-head) found not-found)
+	(make-request name (make-token) simple-subject (html/mail-head) found not-found)
 )
 
 (defn login-email [db user-id name address]	
-	(mail db user-id (make-token) simple-subject (html/plain-head) name address)
+	(mail db user-id (make-token) simple-subject (html/mail-head) name address)
 )
 
 (defn fetch-token-user [db server-token]

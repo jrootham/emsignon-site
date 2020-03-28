@@ -2,10 +2,15 @@
 	(:gen-class)
 	(:require [hiccup.core :as hiccup])
 	(:require [hiccup.form :as form])
+	(:require [nopassword.stuff :as stuff])
 )
 
 ;  General html functions
 
+
+(defn custom-meta [name content]
+	[:meta {:name name :content content}]	
+)
 (defn label-text-field [text-name label-text value]
 	[(form/label text-name label-text) (form/text-field text-name value)]
 )
@@ -22,23 +27,39 @@
 	[:div (map (fn [line] [:div line]) error-list)]
 )
 
-(defn plain-head []
+(defn href [server-token]
+	(format "%sservers/nopassword/login?server-token=%016x" stuff/site server-token)
+)
+
+;  The three possible headers
+
+(defn mail-head []
+	""
+)
+
+(defn browser-head []
 	[:head 
 		[:title "No Password"]
 		[:link {:rel "stylesheet" :type "text/css" :href "nopassword.css"}]
 	]
 )
 
+(defn app-head [server-token]
+	[:head (custom-meta "np-target" (href server-token))]
+)
+
+; The standard browser page
+
 (defn page [contents]
 	(hiccup/html
-		(plain-head)
+		(browser-head)
 		[:div {:id "outer"}
 			[:div {:id "title"} "No Password"]
 			[:div {:id "container"} contents]
+			[:div 
+				[:div [:a {:href (str stuff/site "nopassword/actions.html")} "Actions"]] 
+				[:div [:a {:href (str stuff/site "nopassword/index.html")} "Home"]]
+			]
 		]
 	)
-)
-
-(defn custom-meta [name content]
-	[:meta (str "name=\"" name "\" content=\"" content "\"")]	
 )

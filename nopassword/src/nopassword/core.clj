@@ -19,8 +19,8 @@
 		(register/register useapp name address))
 	(compojure/GET "/servers/nopassword/request-prompt" [] (login/request-prompt "" []))
 	(compojure/POST "/servers/nopassword/request" [name] (login/request name))
-	(compojure/POST "/servers/nopassword/app-request" [name app-token] 
-		(login/app-request name app-token))
+	(compojure/GET "/servers/nopassword/app-request" [identifier token] 
+		(login/app-request identifier token))
 	(compojure/GET "/servers/nopassword/login" [server-token] (login/login server-token))
 	(compojure/GET "/servers/nopassword/app" [:as {{user :user} :session}] (app/app user))
 	(compojure/POST "/servers/nopassword/opt-in" [:as {{user :user} :session}] (app/opt-in user))
