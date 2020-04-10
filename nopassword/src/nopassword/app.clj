@@ -7,6 +7,22 @@
 	(:require [nopassword.html :as html])
 )
 
+(defn paste-data [name address]
+	[:div [:p "The following data is to be cut and pasted into the No Password application"]
+		[:div 
+			{:id "copy"} 
+			[:pre 
+				(str 
+					"nopassword\n" 
+					stuff/site "servers/nopassword/app-request\n" 
+					name "\n"
+					address "\n"
+				)
+			]
+		]
+	]
+)
+
 (def redirect
 	{
 		:status 303
@@ -45,25 +61,33 @@
 			query "SELECT name, address, count, contact FROM users WHERE id=?"
 			record (first(jdbc/query db [query user-id]))
 			{name :name address :address count :count contact :contact} record
+			out "/servers/nopassword/opt-out"
+			in "/servers/nopassword/opt-in"
+			delete "/servers/nopassword/delete"
+			logout "/servers/nopassword/logout"
 		]
-		[:div {:id "data"}
-			[:div "User name"]
-			[:div name]
+		[:div
+			[:div {:id "data"}
+				[:div "User name"]
+				[:div name]
 
-			[:div "Email address"]
-			[:div address] 
+				[:div "Email address"]
+				[:div address] 
 
-			[:div "Login count"]
-			[:div (format "Logged on %d times" count)]
+				[:div "Login count"]
+				[:div (format "Logged on %d times" count)]
 
-			[:div (if contact "Allow contact" "Disallow contact")]
-			(if contact
-				(form/form-to [:post "/servers/nopassword/opt-out"] (form/submit-button "Disallow Contact"))
-				(form/form-to [:post "/servers/nopassword/opt-in"] (form/submit-button "Allow Contact"))
-			)
+				[:div (if contact "Allow contact" "Disallow contact")]
+				(if contact
+					(form/form-to [:post out] (form/submit-button "Disallow Contact"))
+					(form/form-to [:post in] (form/submit-button "Allow Contact"))
+				)
 
-			(form/form-to [:delete "/servers/nopassword/delete"] (form/submit-button "Delete"))
-			(form/form-to [:post "/servers/nopassword/logout"] (form/submit-button "Logout"))
+				(form/form-to [:delete delete] (form/submit-button "Delete"))
+				(form/form-to [:post logout] (form/submit-button "Logout"))
+
+			]
+			(paste-data name address)
 		]
 	)
 )

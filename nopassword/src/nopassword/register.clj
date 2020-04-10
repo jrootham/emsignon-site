@@ -9,6 +9,7 @@
 	(:require [nopassword.stuff :as stuff])
 	(:require [nopassword.html :as html])
 	(:require [nopassword.login :as login])
+	(:require [nopassword.app :as app])
 )
 
 ;  Registration prompt page html (only thing it does)
@@ -82,11 +83,7 @@
 (defn register-app-contents [name address]
 	[:div
 		[:div (str name " has been registered at " address)]
-		[:div [:p "Please cut and paste the following data into the No Password application"]]
-		[:div 
-			{:id "copy"} 
-			[:pre (str "nopassword\n" stuff/site "servers/nopassword/app-request\n" name "\n")]
-		]
+		(app/paste-data name address)
 	]
 )
 

@@ -36,7 +36,7 @@
 	(-> replying
 		(params/wrap-params)
 		(session/wrap-session)
-		(debug/wrap-with-logger)
+;		(debug/wrap-with-logger)
 	)
 )
 
