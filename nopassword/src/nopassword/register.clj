@@ -3,6 +3,7 @@
 	(:require [clojure.java.jdbc :as jdbc])
 	(:require [clojure.string :as str])
 ;	(:require [hiccup.core :as hiccup])
+	(:require [hiccup.util :as util])
 	(:require [hiccup.form :as form])
 	(:require [valip.core :as valip])
 	(:require [valip.predicates :as pred])
@@ -95,20 +96,26 @@
 	(html/page (register-app-contents name address))
 )
 
-(defn register [useapp name address]
-	(jdbc/with-db-transaction [db stuff/db-spec]
-		(let [error-list (concat (validate-address address) (validate-name db name))]
-			(if (= 0 (count error-list))
-				(let [user-id (insert-user db name address)]
-					(if useapp
-						(register-app-page name address)
-						(do
-							(login/login-email db user-id name address)
-							(register-page name address)
+(defn register [useapp rawName rawAddress]
+	(let
+		[
+			name (util/escape-html rawName)
+			address (util/escape-html rawAddress)
+		]
+		(jdbc/with-db-transaction [db stuff/db-spec]
+			(let [error-list (concat (validate-address address) (validate-name db name))]
+				(if (= 0 (count error-list))
+					(let [user-id (insert-user db name address)]
+						(if useapp
+							(register-app-page name address)
+							(do
+								(login/login-email db user-id name address)
+								(register-page name address)
+							)
 						)
 					)
+					(register-prompt name address useapp error-list) 
 				)
-				(register-prompt name address useapp error-list) 
 			)
 		)
 	)

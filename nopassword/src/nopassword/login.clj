@@ -5,6 +5,7 @@
 	(:require [hiccup.core :as hiccup])
 	(:require [hiccup.page :as page])
 	(:require [hiccup.form :as form])
+	(:require [hiccup.util :as util])
 	(:require [crypto.random :as random])
 	(:require [nopassword.stuff :as stuff])
 	(:require [nopassword.mail :as mail])
@@ -114,8 +115,10 @@
 	(request-prompt name [(str "Name " name " not found")])
 )
 
-(defn request [name]
-	(make-request name (make-token) simple-subject (html/mail-head) found not-found)
+(defn request [rawName]
+	(let [name (util/escape-html rawName)]
+		(make-request name (make-token) simple-subject (html/mail-head) found not-found)
+	)
 )
 
 (defn login-email [db user-id name address]	
