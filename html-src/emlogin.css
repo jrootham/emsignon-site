@@ -1,0 +1,54 @@
+/*
+ *  Static file nopassword css
+ */
+
+body
+{
+	background-color: LightSkyBlue;
+}
+
+#page
+{
+  display: grid;
+  grid-template-areas: 
+    "header"
+    "nav"
+    "container";
+}
+
+@media (min-width: 700px) 
+{
+ 	#page 
+ 	{
+ 		grid-template-columns: 1fr 4fr;
+ 		grid-template-areas: 
+ 			"header header"
+ 			"nav    container"
+ 	}
+}
+
+#headline
+{
+	grid-area: header;
+
+	background-color: RoyalBlue;
+	padding: 2em;
+	text-align: center;
+}
+
+#nav
+{
+	grid-area: nav;
+	
+	background-color: DeepSkyBlue;
+	padding: 1em;
+}
+
+#container
+{
+	grid-area: container;
+
+	background-color: LightSkyBlue;
+	max-width: 52em;
+	padding: 1em;
+}
