@@ -1,4 +1,4 @@
-(ns nopassword.register
+(ns emlogin.register
 	(:gen-class)
 	(:require [clojure.java.jdbc :as jdbc])
 	(:require [clojure.string :as str])
@@ -7,24 +7,24 @@
 	(:require [hiccup.form :as form])
 	(:require [valip.core :as valip])
 	(:require [valip.predicates :as pred])
-	(:require [nopassword.stuff :as stuff])
-	(:require [nopassword.html :as html])
-	(:require [nopassword.login :as login])
-	(:require [nopassword.app :as app])
+	(:require [emlogin.stuff :as stuff])
+	(:require [emlogin.html :as html])
+	(:require [emlogin.login :as login])
+	(:require [emlogin.app :as app])
 )
 
 ;  Registration prompt page html (only thing it does)
 
 (defn register-prompt-form [name address useapp error-list]
 	[:div
-		(form/form-to [:post "/servers/nopassword/register"]
+		(form/form-to [:post "/servers/emlogin/register"]
 			[:div
 				(html/show-errors error-list)
 				(html/group [:div {:id "register-group"}]
 					[
 						(html/label-text-field :name "User name" name) 
 						(html/label-text-field :address "Email address" address)
-						(html/label-checkbox :useapp "Use nopassword application" useapp)
+						(html/label-checkbox :useapp "Use emlogin application" useapp)
 					]
 				)
 
@@ -76,14 +76,14 @@
 
 (defn register-contents [name address]
 	[:div
-		[:div (str name " has been registered at " address)]
+		[:div (str (util/escape-html name) " has been registered at " (util/escape-html address))]
 		[:div "An email will be sent to the email address you entered with a link to log in to the site with."]	
 	]
 )
 
 (defn register-app-contents [name address]
 	[:div
-		[:div (str name " has been registered at " address)]
+		[:div (str (util/escape-html name) " has been registered at " (util/escape-html address))]
 		(app/paste-data name address)
 	]
 )
@@ -96,26 +96,20 @@
 	(html/page (register-app-contents name address))
 )
 
-(defn register [useapp rawName rawAddress]
-	(let
-		[
-			name (util/escape-html rawName)
-			address (util/escape-html rawAddress)
-		]
-		(jdbc/with-db-transaction [db stuff/db-spec]
-			(let [error-list (concat (validate-address address) (validate-name db name))]
-				(if (= 0 (count error-list))
-					(let [user-id (insert-user db name address)]
-						(if useapp
-							(register-app-page name address)
-							(do
-								(login/login-email db user-id name address)
-								(register-page name address)
-							)
+(defn register [useapp name address]
+	(jdbc/with-db-transaction [db stuff/db-spec]
+		(let [error-list (concat (validate-address address) (validate-name db name))]
+			(if (= 0 (count error-list))
+				(let [user-id (insert-user db name address)]
+					(if useapp
+						(register-app-page name address)
+						(do
+							(login/login-email db user-id name address)
+							(register-page name address)
 						)
 					)
-					(register-prompt name address useapp error-list) 
 				)
+				(register-prompt name address useapp error-list) 
 			)
 		)
 	)

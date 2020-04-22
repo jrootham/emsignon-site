@@ -1,8 +1,9 @@
-(ns nopassword.html
+(ns emlogin.html
 	(:gen-class)
 	(:require [hiccup.core :as hiccup])
 	(:require [hiccup.form :as form])
-	(:require [nopassword.stuff :as stuff])
+	(:require [hiccup.util :as util])
+	(:require [emlogin.stuff :as stuff])
 )
 
 ;  General html functions
@@ -24,11 +25,11 @@
 )
 
 (defn show-errors [error-list]
-	[:div (map (fn [line] [:div line]) error-list)]
+	[:div (map (fn [line] [:div (util/escape-html line)]) error-list)]
 )
 
 (defn href [server-token]
-	(format "%sservers/nopassword/login?server-token=%016x" stuff/site server-token)
+	(format "%sservers/emlogin/login?server-token=%016x" stuff/site server-token)
 )
 
 ;  The three possible headers
@@ -39,13 +40,13 @@
 
 (defn browser-head []
 	[:head 
-		[:title "No Password"]
-		[:link {:rel "stylesheet" :type "text/css" :href "nopassword.css"}]
+		[:title "EMail Login"]
+		[:link {:rel "stylesheet" :type "text/css" :href "emlogin.css"}]
 	]
 )
 
 (defn app-head [server-token]
-	[:head (custom-meta "np-target" (href server-token))]
+	[:head (custom-meta "eml-target" (href server-token))]
 )
 
 ; The standard browser page
@@ -54,11 +55,12 @@
 	(hiccup/html
 		(browser-head)
 		[:div {:id "outer"}
-			[:div {:id "title"} "No Password"]
+			[:div {:id "title"} "EMail Login"]
 			[:div {:id "container"} contents]
 			[:div 
-				[:div [:a {:href (str stuff/site "nopassword/actions.html")} "Actions"]] 
-				[:div [:a {:href (str stuff/site "nopassword/index.html")} "Home"]]
+				[:div [:a {:href (str stuff/site "servers/emlogin/register-prompt")} "Register"]] 
+				[:div [:a {:href (str stuff/site "servers/emlogin/request-prompt")} "Login"]] 
+				[:div [:a {:href (str stuff/site "emlogin/index.html")} "Home"]]
 			]
 		]
 	)

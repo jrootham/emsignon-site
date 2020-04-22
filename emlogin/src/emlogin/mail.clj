@@ -1,7 +1,7 @@
-(ns nopassword.mail
+(ns emlogin.mail
 	(:gen-class)
 	(:require [clj-http.client :as client])
-	(:require [nopassword.stuff :as stuff])
+	(:require [emlogin.stuff :as stuff])
 )
 
 ; constants

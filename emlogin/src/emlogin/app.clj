@@ -1,22 +1,23 @@
-(ns nopassword.app
+(ns emlogin.app
 	(:gen-class)
 	(:require [clojure.java.jdbc :as jdbc])
 	(:require [hiccup.core :as hiccup])
 	(:require [hiccup.form :as form])
-	(:require [nopassword.stuff :as stuff])
-	(:require [nopassword.html :as html])
+	(:require [hiccup.util :as util])
+	(:require [emlogin.stuff :as stuff])
+	(:require [emlogin.html :as html])
 )
 
 (defn paste-data [name address]
-	[:div [:p "The following data is to be cut and pasted into the No Password application"]
+	[:div [:p "The following data is to be cut and pasted into the EMail Login application"]
 		[:div 
 			{:id "copy"} 
 			[:pre 
 				(str 
-					"nopassword\n" 
-					stuff/site "servers/nopassword/app-request\n" 
-					name "\n"
-					address "\n"
+					"emlogin\n" 
+					stuff/site "servers/emlogin/app-request\n" 
+					(util/escape-html name) "\n"
+					(util/escape-html address) "\n"
 				)
 			]
 		]
@@ -26,7 +27,7 @@
 (def redirect
 	{
 		:status 303
-		:headers {"Location" "/servers/nopassword/app"} 
+		:headers {"Location" "/servers/emlogin/app"} 
 	}
 )
 
@@ -61,18 +62,18 @@
 			query "SELECT name, address, count, contact FROM users WHERE id=?"
 			record (first(jdbc/query db [query user-id]))
 			{name :name address :address count :count contact :contact} record
-			out "/servers/nopassword/opt-out"
-			in "/servers/nopassword/opt-in"
-			delete "/servers/nopassword/delete"
-			logout "/servers/nopassword/logout"
+			out "/servers/emlogin/opt-out"
+			in "/servers/emlogin/opt-in"
+			delete "/servers/emlogin/delete"
+			logout "/servers/emlogin/logout"
 		]
 		[:div
 			[:div {:id "data"}
 				[:div "User name"]
-				[:div name]
+				[:div (util/escape-html name)]
 
 				[:div "Email address"]
-				[:div address] 
+				[:div (util/escape-html address)] 
 
 				[:div "Login count"]
 				[:div (format "Logged on %d times" count)]

@@ -1,6 +1,6 @@
-(defproject nopassword "0.1.0"
-  	:description "Demo server for nopassword"
-  	:url "http://jrootham.ca/nopassword"
+(defproject emlogin "0.1.0"
+  	:description "Demo server for emlogin"
+  	:url "https://jrootham.ca/emlogin"
 	:dependencies 
 	[
 		[org.clojure/clojure "1.8.0"]
@@ -15,7 +15,7 @@
 		[crypto-random "1.2.0"]
 		[bananaoomarang/ring-debug-logging "1.1.0"]
 	]
-	:main ^:skip-aot nopassword.core
+	:main ^:skip-aot emlogin.core
   	:target-path "target/%s"
   	:profiles {:uberjar {:aot :all}}
 )

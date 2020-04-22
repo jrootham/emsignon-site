@@ -1,16 +1,16 @@
-(ns nopassword.login
+(ns emlogin.login
 	(:gen-class)
 	(:require [clojure.java.jdbc :as jdbc])
 	(:require [clojure.string :as str])
 	(:require [hiccup.core :as hiccup])
 	(:require [hiccup.page :as page])
 	(:require [hiccup.form :as form])
-	(:require [hiccup.util :as util])
+;	(:require [hiccup.util :as util])
 	(:require [crypto.random :as random])
-	(:require [nopassword.stuff :as stuff])
-	(:require [nopassword.mail :as mail])
-	(:require [nopassword.html :as html])
-	(:require [nopassword.app :as app])
+	(:require [emlogin.stuff :as stuff])
+	(:require [emlogin.mail :as mail])
+	(:require [emlogin.html :as html])
+	(:require [emlogin.app :as app])
 )
 
 
@@ -20,9 +20,9 @@
 
 (defn request-prompt-contents [name error-list]
 	[:div
-		[:div "Please enter your user name for the site No Password."]
+		[:div "Please enter your user name for the site EMail Login."]
 		[:div "An email will be sent to the email address we have on file with a link to signon to the site with."]
-		(form/form-to [:post "/servers/nopassword/request"]
+		(form/form-to [:post "/servers/emlogin/request"]
 			(html/show-errors error-list)
 			(html/group [:div {:id "login-group"}] [(html/label-text-field :name "User name " name)])
 			(form/submit-button "Request login")
@@ -37,8 +37,8 @@
 (defn mail-contents [server-token name]
 	[:body
 		[:div
-			[:h1 "No Password"]
-			[:div (str "No password login for " name)]
+			[:h1 "EMail Login"]
+			[:div (str "EMail login for " name)]
 			[:div [:a {:href (html/href server-token)} "Login"]]
 		]
 	]
@@ -83,7 +83,7 @@
 )
 
 (defn app-subject [app-token]
-	(format "[#! nopassword %s] No Password Signon" app-token)
+	(format "[#! emlogin %s] EMail Login" app-token)
 )
 
 (defn app-found [name address]
@@ -105,7 +105,7 @@
 	)
 )
 
-(def simple-subject "No Password Login")
+(def simple-subject "EMail Login")
 
 (defn found [name address]
 	(request-page name address)
@@ -115,10 +115,8 @@
 	(request-prompt name [(str "Name " name " not found")])
 )
 
-(defn request [rawName]
-	(let [name (util/escape-html rawName)]
-		(make-request name (make-token) simple-subject (html/mail-head) found not-found)
-	)
+(defn request [name]
+	(make-request name (make-token) simple-subject (html/mail-head) found not-found)
 )
 
 (defn login-email [db user-id name address]	
