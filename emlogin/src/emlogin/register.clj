@@ -7,13 +7,12 @@
 	(:require [hiccup.form :as form])
 	(:require [valip.core :as valip])
 	(:require [valip.predicates :as pred])
+	(:require [emlogin.config :as config])
 	(:require [emlogin.stuff :as stuff])
 	(:require [emlogin.html :as html])
 	(:require [emlogin.login :as login])
-	(:require [emlogin.app :as app])
+;	(:require [emlogin.app :as app])
 )
-
-;  Registration prompt page html (only thing it does)
 
 (defn register-prompt-form [name address useapp error-list]
 	[:div
@@ -84,7 +83,7 @@
 (defn register-app-contents [name address]
 	[:div
 		[:div (str (util/escape-html name) " has been registered at " (util/escape-html address))]
-		(app/paste-data name address)
+		(config/config-link name)
 	]
 )
 

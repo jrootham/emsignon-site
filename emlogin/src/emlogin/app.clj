@@ -4,24 +4,10 @@
 	(:require [hiccup.core :as hiccup])
 	(:require [hiccup.form :as form])
 	(:require [hiccup.util :as util])
+	(:require [ring.util.json-response :as json])
+	(:require [emlogin.config :as config])
 	(:require [emlogin.stuff :as stuff])
 	(:require [emlogin.html :as html])
-)
-
-(defn paste-data [name address]
-	[:div [:p "The following data is to be cut and pasted into the EMail Login application"]
-		[:div 
-			{:id "copy"} 
-			[:pre 
-				(str 
-					"emlogin\n" 
-					stuff/site "servers/emlogin/app-request\n" 
-					(util/escape-html name) "\n"
-					(util/escape-html address) "\n"
-				)
-			]
-		]
-	]
 )
 
 (def redirect
@@ -88,7 +74,7 @@
 				(form/form-to [:post logout] (form/submit-button "Logout"))
 
 			]
-			(paste-data name address)
+			(config/config-link name)
 		]
 	)
 )

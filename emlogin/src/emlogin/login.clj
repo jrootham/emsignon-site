@@ -68,13 +68,17 @@
 	(jdbc/query db ["SELECT id, name, address FROM users WHERE valid AND name=?" name])
 )
 
-(defn make-request [name server-token subject headers found not-found]
+(defn make-request [name server-token subject headers found not-found email-error]
 	(jdbc/with-db-transaction [db stuff/db-spec]
 		(let [result (get-user db name)]
 			(if (== 1 (count result))
 				(let [{user-id :id address :address} (first result)]
-					(mail db user-id server-token subject headers name address)
-					(found name address)
+					(let [{code :code} (mail db user-id server-token subject headers name address)]
+						(if (== 0 code)
+							(found name address)
+							(email-error name code)
+						)
+					)
 				)
 				(not-found name)
 			)
@@ -94,6 +98,10 @@
 	{:status 404 :body (str name " not found")}
 )
 
+(defn app-email-error [name code]
+	{:status 400 :body (format "Email error.  code:%d" code)}
+)
+
 (defn app-request [name app-token]
 	(let 
 		[
@@ -101,7 +109,7 @@
 			subject (app-subject app-token)
 			head (html/app-head server-token)
 		]
-		(make-request name server-token subject head app-found app-not-found)
+		(make-request name server-token subject head app-found app-not-found app-email-error)
 	)
 )
 
@@ -115,8 +123,12 @@
 	(request-prompt name [(str "Name " name " not found")])
 )
 
+(defn email-error [name code]
+	(request-prompt name [(format "Email error.  code:%d" code)])
+)
+
 (defn request [name]
-	(make-request name (make-token) simple-subject (html/mail-head) found not-found)
+	(make-request name (make-token) simple-subject (html/mail-head) found not-found email-error)
 )
 
 (defn login-email [db user-id name address]	

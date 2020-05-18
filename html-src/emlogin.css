@@ -32,7 +32,7 @@ body
 	grid-area: header;
 
 	background-color: RoyalBlue;
-	padding: 2em;
+	padding: 1em;
 	text-align: center;
 }
 
@@ -41,7 +41,6 @@ body
 	grid-area: nav;
 	
 	background-color: DeepSkyBlue;
-	padding: 1em;
 }
 
 #container

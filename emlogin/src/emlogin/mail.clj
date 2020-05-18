@@ -1,7 +1,7 @@
 (ns emlogin.mail
 	(:gen-class)
-	(:require [clj-http.client :as client])
 	(:require [emlogin.stuff :as stuff])
+	(:require [postal.core :as postal])
 )
 
 ; constants
@@ -12,19 +12,14 @@
 
 (defn mail-config [from to subject body]
 	{
-		:oauth-token stuff/mail-key
-		:content-type :applicaton/json
-		:form-params
-		{
-			:personalizations[{:to [{:email to}]}]
-			:from {:email from}
-			:subject subject
-			:content [{:type "text/html" :value body}]
-		}
+		:to to
+		:from from
+		:subject subject
+		:body [{:type "text/html" :content body}]
 	}
 )
 
 (defn send-mail [from to subject body]
-	(client/post "https://api.sendgrid.com/v3/mail/send" (mail-config from to subject body))
+	(postal/send-message stuff/mail-spec (mail-config from to subject body))
 )
 
