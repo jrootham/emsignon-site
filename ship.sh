@@ -1,24 +1,22 @@
 #!/bin/bash
 
-LOCAL=voting-server/resources/public/main.js
+LOCAL=emsignon/resources/public/main.js
 REMOTE=jrootham@jrootham.ca:
-BASE=/var/www/vhosts/jrootham.ca
+BASE=/var/www/vhosts/emsignon.com
 SUFFIX=resources/public/
 
-PREFIX=/home/jrootham/dev/cabal/cabalVoting/voting-server
-UBERJAR=/target/uberjar/voting-server.jar
-DOCROOT=/home/jrootham/dev/cabal/cabalVoting/docroot
+PREFIX=/home/jrootham/dev/business/emsignon/emsignon
+UBERJAR=/target/uberjar/emsignon.jar
+DOCROOT=/home/jrootham/dev/business/emsignon/docroot
 
 
-ssh jrootham@jrootham.ca "mkdir -p $BASE/demo.jrootham.ca/$SUFFIX"
-ssh jrootham@jrootham.ca "mkdir -p $BASE/thursday.jrootham.ca/$SUFFIX"
-ssh jrootham@jrootham.ca "mkdir -p $BASE/friday.jrootham.ca/$SUFFIX"
-ssh jrootham@jrootham.ca "mkdir -p $BASE/book.jrootham.ca/$SUFFIX"
+ssh jrootham@jrootham.ca "mkdir -p $BASE/user.emsignon.com/$SUFFIX"
+ssh jrootham@jrootham.ca "mkdir -p $BASE/test.emsignon.com/$SUFFIX"
+ssh jrootham@jrootham.ca "mkdir -p $BASE/quick.emsignon.com/$SUFFIX"
 
-ssh jrootham@jrootham.ca "mkdir -p $BASE/servers/demo"
-ssh jrootham@jrootham.ca "mkdir -p $BASE/servers/thursday"
-ssh jrootham@jrootham.ca "mkdir -p $BASE/servers/friday"
-ssh jrootham@jrootham.ca "mkdir -p $BASE/servers/book"
+ssh jrootham@jrootham.ca "mkdir -p $BASE/servers/user"
+ssh jrootham@jrootham.ca "mkdir -p $BASE/servers/test"
+ssh jrootham@jrootham.ca "mkdir -p $BASE/servers/quick"
 
 scp $DOCROOT/* $REMOTE$BASE/demo.jrootham.ca
 scp $DOCROOT/* $REMOTE$BASE/thursday.jrootham.ca
